@@ -25,18 +25,21 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import axios from 'axios';
 import 'core-js';
 import { SigningRequest } from 'eosio-signing-request';
-import { TextDecoder, TextEncoder } from 'text-encoding';
-// import Buffer from 'buffer';
+// import { TextDecoder, TextEncoder } from 'text-encoding';
 import zlib from 'react-zlib-js';
-import axios from 'axios';
+import { inspect } from 'util';
 const { Api, JsonRpc, RpcError } = require('eosjs');
 const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig'); // development only
-
+import 'fastestsmallesttextencoderdecoder';
 const Buffer = require('safe-buffer').Buffer;
 const fetch = require('node-fetch'); // node only; not needed in browsers
-
+const {
+  TextEncoder,
+  TextDecoder,
+} = require('fastestsmallesttextencoderdecoder');
 global.Buffer = Buffer;
 
 const eosRpc = new JsonRpc('https://mainnet.telosusa.io', { fetch });
@@ -48,110 +51,58 @@ const eosjsProvider = new JsSignatureProvider([
 const eosApi = new Api({
   rpc: eosRpc,
   signatureProvider: eosjsProvider,
-  textDecoder: new TextDecoder(),
-  textEncoder: new TextEncoder(),
+  textDecoder: TextDecoder,
+  textEncoder: TextEncoder,
 });
 
-// const options = {
-//   // string encoder
-//   textEncoder: TextEncoder,
-//   // string decoder
-//   textDecoder: TextDecoder,
-//   // zlib string compression (optional, recommended)
-//   zlib: {
-//     deflateRaw: (data) => new Uint8Array(zlib.InflateRaw(Buffer.from(data))),
-//     inflateRaw: (data) => new Uint8Array(zlib.DeflateRaw(Buffer.from(data))),
-//   },
-//   // Customizable ABI Provider used to retrieve contract data
-//   abiProvider: {
-//     getAbi: async (account) => {
-//       console.log('account: ', account);
-//       const { data } = await axios(
-//         'https://testnet.telosusa.io/v1/chain/get_abi',
-//         {
-//           method: 'POST',
-//           data: {
-//             account_name: account,
-//           },
-//         },
-//       );
-//       return data;
-//     },
-//   },
-// };
+const options = {
+  // string encoder
+  textEncoder: TextEncoder,
+  // string decoder
+  textDecoder: TextDecoder,
+  // zlib string compression (optional, recommended)
+  zlib: {
+    deflateRaw: (data) => new Uint8Array(zlib.InflateRaw(Buffer.from(data))),
+    inflateRaw: (data) => new Uint8Array(zlib.DeflateRaw(Buffer.from(data))),
+  },
+  // Customizable ABI Provider used to retrieve contract data
+  abiProvider: {
+    getAbi: async (account) => await eosApi.getAbi(account),
+  },
+};
+
+const actions = [
+  {
+    account: 'eosio',
+    name: 'voteproducer',
+    authorization: [
+      {
+        actor: 'captaincrypt',
+        permission: 'active',
+      },
+    ],
+    data: {
+      voter: 'captaincrypt',
+      proxy: 'greymassvote',
+      producers: [],
+    },
+  },
+];
 
 const App: () => React$Node = () => {
-  const testTx = async () => {
-    let result;
-    try {
-      result = await eosApi.transact(
-        {
-          actions: [
-            {
-              account: 'eosio.token',
-              name: 'transfer',
-              authorization: [
-                {
-                  actor: 'captaincrypt',
-                  permission: 'active',
-                },
-              ],
-              data: {
-                from: 'captaincrypt',
-                to: 'telos.decide',
-                quantity: '1.0000 TLOS',
-                memo: 'Howdydoody',
-              },
-            },
-          ],
-        },
-        {
-          blocksBehind: 10,
-          expireSeconds: 30,
-        },
-      );
-    } catch (error) {
-      console.log('\nCaught exception: ' + error);
-      if (error instanceof RpcError)
-        console.log(JSON.stringify(error.json, null, 2));
-    }
-    console.dir(result);
+  const testSign = async () => {
+    const req1 = await SigningRequest.create({ actions }, options);
+    console.log('req1 created: ', req1);
+    console.log(inspect(req1, false, null, true));
+
+    // encode signing request as URI string
+    const uri = req1.encode();
+    console.log(`\nURI: ${uri}`);
   };
 
   useEffect(() => {
-    testTx();
+    testSign();
   }, []);
-
-  // const testSign = async () => {
-  //   const req1 = await SigningRequest.create(
-  //     {
-  //       callback: {
-  //         url: '',
-  //         background: true,
-  //       },
-  //       action: {
-  //         account: 'eosio.token',
-  //         name: 'transfer',
-  //         authorization: [{ actor: 'captaincrypt', permission: 'active' }],
-  //         data: {
-  //           from: 'captaincrypt',
-  //           to: 'captaincrypu',
-  //           quantity: '1.0000 TLOS',
-  //           memo: 'Thanks for the Telos',
-  //         },
-  //       },
-  //     },
-  //     options,
-  //   );
-  //   const encoded = req1.encode();
-  //   console.log('encoded: ', encoded);
-  //   const req2 = SigningRequest.from(encoded, options);
-  //   console.log('req2: ', req2);
-  // };
-
-  // useEffect(() => {
-  //   testSign();
-  // }, []);
 
   return (
     <>

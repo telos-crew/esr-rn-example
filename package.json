@@ -17,6 +17,7 @@
     "eosio-signing-request": "^1.2.2",
     "eosjs": "^21.0.3",
     "eosjs-rn": "^20.0.0",
+    "fastestsmallesttextencoderdecoder": "^1.0.22",
     "node-fetch": "^2.6.1",
     "react": "16.13.1",
     "react-native": "0.63.4",
