@@ -61,10 +61,6 @@ const options = {
   // string decoder
   textDecoder: TextDecoder,
   // zlib string compression (optional, recommended)
-  zlib: {
-    deflateRaw: (data) => new Uint8Array(zlib.InflateRaw(Buffer.from(data))),
-    inflateRaw: (data) => new Uint8Array(zlib.DeflateRaw(Buffer.from(data))),
-  },
   // Customizable ABI Provider used to retrieve contract data
   abiProvider: {
     getAbi: async (account) => {
@@ -149,15 +145,23 @@ const App: () => React$Node = () => {
               <Text style={styles.footer}>Engine: Hermes</Text>
             </View>
           )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
+          <View
+            style={[
+              styles.body,
+              {
+                display: 'flex',
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              },
+            ]}>
             <TouchableOpacity
+              style={{
+                borderColor: 'green',
+                borderWidth: 1,
+                padding: 8,
+                margin: 30,
+              }}
               onPress={() =>
                 Linking.openURL(
                   'esr://gmNgZGRkAIFXBqEFopc6760yugsVYWBggtKCMIEFRnclpF9eTWUACgAA',
@@ -165,25 +169,6 @@ const App: () => React$Node = () => {
               }>
               <Text>Make transaction</Text>
             </TouchableOpacity>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
           </View>
         </ScrollView>
       </SafeAreaView>

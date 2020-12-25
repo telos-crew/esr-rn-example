@@ -8,7 +8,6 @@ target 'ualReactNativeTest' do
 
   use_react_native!(:path => config["reactNativePath"])
 
-  pod 'RNReactNativeZlib', :path => '../node_modules/@klarna/react-native-zlib'
 
   target 'ualReactNativeTestTests' do
     inherit! :complete
