@@ -67,7 +67,20 @@ const options = {
   },
   // Customizable ABI Provider used to retrieve contract data
   abiProvider: {
-    getAbi: async (account) => await eosApi.getAbi(account),
+    getAbi: async (account) => {
+      console.log('account: ', account);
+      const { data } = await axios(
+        'https://testnet.telosusa.io/v1/chain/get_abi',
+        {
+          method: 'POST',
+          data: {
+            account_name: account,
+          },
+        },
+      );
+      console.log('data: ', data);
+      return data.abi;
+    },
   },
 };
 
@@ -91,13 +104,32 @@ const actions = [
 
 const App: () => React$Node = () => {
   const testSign = async () => {
-    const req1 = await SigningRequest.create({ actions }, options);
+    const req1 = await SigningRequest.create(
+      {
+        callback: {
+          url: '',
+          background: true,
+        },
+        action: {
+          account: 'eosio.token',
+          name: 'transfer',
+          authorization: [{ actor: 'captaincrypt', permission: 'active' }],
+          data: {
+            from: 'captaincrypt',
+            to: 'unmutediodap',
+            quantity: '1.0000 TLOS',
+            memo: 'Thanks for the fish',
+          },
+        },
+      },
+      options,
+    );
     console.log('req1 created: ', req1);
+    const encoded = req1.encode();
+    console.log('encoded: ', encoded);
     console.log(inspect(req1, false, null, true));
 
     // encode signing request as URI string
-    const uri = req1.encode();
-    console.log(`\nURI: ${uri}`);
   };
 
   useEffect(() => {
