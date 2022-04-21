@@ -45,7 +45,7 @@ global.Buffer = Buffer;
 const eosRpc = new JsonRpc('https://mainnet.telosusa.io', { fetch });
 
 const eosjsProvider = new JsSignatureProvider([
-  '5JYU7tUR1wAFTxcrUbKXGwB4HtAo2i3CEXbeZuZKXM4w6zw3LwU',
+  'yourPrivateKeyHere',
 ]);
 
 const eosApi = new Api({
